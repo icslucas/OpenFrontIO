@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFront (ALPHA)</title>
-
     <link rel="manifest" href="../../resources/manifest.json" />
 
     <!-- Critical CSS to prevent FOUC -->
@@ -118,6 +117,31 @@
           display: none;
         }
       }
+
+      /* Added styles for Discord login button */
+      .discord-login-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #5865F2;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+      }
+
+      .discord-login-button:hover {
+        background-color: #4752C4;
+      }
+
+      .discord-login-button img {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+      }
     </style>
 
     <!-- Immediate execution to prevent FOUC -->
@@ -206,7 +230,6 @@
         v0.20.0
       </div>
     </div>
-
     <div class="bg-image"></div>
 
     <!-- Left gutter ad placement - full height, no empty space -->
@@ -236,6 +259,14 @@
         >
           <flag-input class="w-[20%] md:w-[15%]"></flag-input>
           <username-input class="w-full"></username-input>
+        </div>
+
+        <!-- Added Discord Login Button -->
+        <div class="max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto mt-4">
+          <a id="auth-button" href="/auth/discord" class="discord-login-button">
+            <img src="../../resources/icons/discord.svg" alt="Discord Icon" />
+            <span id="button-text">Login with Discord</span>
+          </a>
         </div>
 
         <div class="max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto mt-4">
@@ -387,5 +418,8 @@
       src="https://static.cloudflareinsights.com/beacon.min.js"
       data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'
     ></script>
+
+    <!-- Added auth.js script -->
+    <script src="/auth.js"></script>
   </body>
 </html>
