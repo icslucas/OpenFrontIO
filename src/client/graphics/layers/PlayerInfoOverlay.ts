@@ -161,77 +161,80 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
   }
 
-  private renderPlayerInfo(player: PlayerView) {
-    const myPlayer = this.myPlayer();
-    const isAlly = myPlayer?.isAlliedWith(player);
-    let relationHtml = null;
-    const attackingTroops = player
-      .outgoingAttacks()
-      .map((a) => a.troops)
-      .reduce((a, b) => a + b, 0);
+ private renderPlayerInfo(player: PlayerView) {
+  const myPlayer = this.myPlayer();
+  const isAlly = myPlayer?.isAlliedWith(player);
+  let relationHtml = null;
+  const attackingTroops = player
+    .outgoingAttacks()
+    .map((a) => a.troops)
+    .reduce((a, b) => a + b, 0);
 
-    if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
-      const relation =
-        this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral;
-      const relationClass = this.getRelationClass(relation);
-      const relationName = Relation[relation];
+  if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
+    const relation =
+      this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral;
+    const relationClass = this.getRelationClass(relation);
+    const relationName = Relation[relation];
 
-      relationHtml = html`
-        <div class="text-sm opacity-80">
-          Attitude: <span class="${relationClass}">${relationName}</span>
-        </div>
-      `;
-    }
-    let playerType = "";
-    switch (player.type()) {
-      case PlayerType.Bot:
-        playerType = "Bot";
-        break;
-      case PlayerType.FakeHuman:
-        playerType = "Nation";
-        break;
-      case PlayerType.Human:
-        playerType = "Player";
-        break;
-    }
-
-    return html`
-      <div class="p-2">
-        <div
-          class="text-bold text-sm lg:text-lg font-bold mb-1 ${isAlly
-            ? "text-green-500"
-            : "text-white"}"
-        >
-          ${player.name()}
-        </div>
-        <div class="text-sm opacity-80">Type: ${playerType}</div>
-        ${player.troops() >= 1 &&
-        html`<div class="text-sm opacity-80" translate="no">
-          Defending troops: ${renderTroops(player.troops())}
-        </div>`}
-        ${attackingTroops >= 1 &&
-        html`<div class="text-sm opacity-80" translate="no">
-          Attacking troops: ${renderTroops(attackingTroops)}
-        </div>`}
-        <div class="text-sm opacity-80" translate="no">
-          Gold: ${renderNumber(player.gold())}
-        </div>
-        <div class="text-sm opacity-80" translate="no">
-          Ports: ${player.units(UnitType.Port).length}
-        </div>
-        <div class="text-sm opacity-80" translate="no">
-          Cities: ${player.units(UnitType.City).length}
-        </div>
-        <div class="text-sm opacity-80" translate="no">
-          Missile launchers: ${player.units(UnitType.MissileSilo).length}
-        </div>
-        <div class="text-sm opacity-80" translate="no">
-          SAMs: ${player.units(UnitType.SAMLauncher).length}
-        </div>
-        ${relationHtml}
+    relationHtml = html`
+      <div class="text-sm opacity-80">
+        Attitude: <span class="${relationClass}">${relationName}</span>
       </div>
     `;
   }
+
+  let playerType = "";
+  switch (player.type()) {
+    case PlayerType.Bot:
+      playerType = "Bot";
+      break;
+    case PlayerType.FakeHuman:
+      playerType = "Nation";
+      break;
+    case PlayerType.Human:
+      playerType = "Player";
+      break;
+  }
+
+  return html`
+    <div class="p-2">
+      <div
+        class="text-bold text-sm lg:text-lg font-bold mb-1 ${isAlly
+          ? "text-green-500"
+          : "text-white"}"
+      >
+        ${player.name()}
+      </div>
+      <div class="text-sm opacity-80">Type: ${playerType}</div>
+      ${player.troops() >= 1 ? html`
+        <div class="text-sm opacity-80" translate="no">
+          Defending troops: ${renderTroops(player.troops())}
+        </div>
+      ` : null}
+      ${attackingTroops >= 1 ? html`
+        <div class="text-sm opacity-80" translate="no">
+          Attacking troops: ${renderTroops(attackingTroops)}
+        </div>
+      ` : null}
+      <div class="text-sm opacity-80" translate="no">
+        Gold: ${renderNumber(player.gold())}
+      </div>
+      <div class="text-sm opacity-80" translate="no">
+        Ports: ${player.units(UnitType.Port).length}
+      </div>
+      <div class="text-sm opacity-80" translate="no">
+        Cities: ${player.units(UnitType.City).length}
+      </div>
+      <div class="text-sm opacity-80" translate="no">
+        Missile launchers: ${player.units(UnitType.MissileSilo).length}
+      </div>
+      <div class="text-sm opacity-80" translate="no">
+        SAMs: ${player.units(UnitType.SAMLauncher).length}
+      </div>
+      ${relationHtml}
+    </div>
+  `;
+}
 
   private renderUnitInfo(unit: UnitView) {
     const isAlly =
