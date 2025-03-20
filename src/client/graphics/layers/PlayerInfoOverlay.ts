@@ -209,10 +209,9 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         html`<div class="text-sm opacity-80" translate="no">
           Defending troops: ${renderTroops(player.troops())}
         </div>`}
-        ${attackingTroops >= 1 &&
-        html`<div class="text-sm opacity-80" translate="no">
+        <div class="text-sm opacity-80" translate="no">
           Attacking troops: ${renderTroops(attackingTroops)}
-        </div>`}
+        </div>
         <div class="text-sm opacity-80" translate="no">
           Gold: ${renderNumber(player.gold())}
         </div>
@@ -267,11 +266,11 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     return html`
       <div
-        class="flex w-full  z-50 flex flex-col"
+        class="flex w-full z-50 flex flex-col"
         @contextmenu=${(e) => e.preventDefault()}
       >
         <div
-          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300  text-white text-lg md:text-base ${containerClasses}"
+          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 text-white text-lg md:text-base ${containerClasses}"
         >
           ${this.player != null ? this.renderPlayerInfo(this.player) : ""}
           ${this.unit != null ? this.renderUnitInfo(this.unit) : ""}
