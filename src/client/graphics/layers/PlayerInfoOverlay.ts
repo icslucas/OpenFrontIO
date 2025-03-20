@@ -66,7 +66,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
   private _isInfoVisible: boolean = false;
 
   private _isActive = false;
-
   private lastMouseUpdate = 0;
 
   init() {
@@ -182,6 +181,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         </div>
       `;
     }
+
     let playerType = "";
     switch (player.type()) {
       case PlayerType.Bot:
@@ -205,14 +205,20 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
           ${player.name()}
         </div>
         <div class="text-sm opacity-80">Type: ${playerType}</div>
-        ${player.troops() >= 1 &&
-        html`<div class="text-sm opacity-80" translate="no">
-          Defending troops: ${renderTroops(player.troops())}
-        </div>`}
-        ${attackingTroops >= 1 &&
-        html`<div class="text-sm opacity-80" translate="no">
-          Attacking troops: ${renderTroops(attackingTroops)}
-        </div>`}
+        ${player.troops() >= 1
+          ? html`
+              <div class="text-sm opacity-80" translate="no">
+                Defending troops: ${renderTroops(player.troops())}
+              </div>
+            `
+          : null}
+        ${attackingTroops >= 1
+          ? html`
+              <div class="text-sm opacity-80" translate="no">
+                Attacking troops: ${renderTroops(attackingTroops)}
+              </div>
+            `
+          : null}
         <div class="text-sm opacity-80" translate="no">
           Gold: ${renderNumber(player.gold())}
         </div>
@@ -267,11 +273,11 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     return html`
       <div
-        class="flex w-full  z-50 flex flex-col"
+        class="flex w-full z-50 flex-col"
         @contextmenu=${(e) => e.preventDefault()}
       >
         <div
-          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300  text-white text-lg md:text-base ${containerClasses}"
+          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 text-white text-lg md:text-base ${containerClasses}"
         >
           ${this.player != null ? this.renderPlayerInfo(this.player) : ""}
           ${this.unit != null ? this.renderUnitInfo(this.unit) : ""}
