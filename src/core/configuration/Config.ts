@@ -50,6 +50,8 @@ export interface ServerConfig {
 }
 
 export interface Config {
+  samHittingChance(): number;
+  samCooldown(): Tick;
   spawnImmunityDuration(): Tick;
   serverConfig(): ServerConfig;
   gameConfig(): GameConfig;
