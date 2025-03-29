@@ -18,7 +18,7 @@ import crypto from 'crypto';
 import { getDiscordAuthURL, getDiscordToken, getDiscordUser, validateState } from './DiscordAuth';
 const config = getServerConfigFromServer();
 const readyWorkers = new Set();
-
+import { requireAuth, attachUser } from './AuthMiddleware';
 const app = express();
 const server = http.createServer(app);
 
@@ -380,7 +380,14 @@ app.get('/api/auth/status', (req, res) => {
     res.json({ authenticated: false });
   }
 });
-
+app.get('/login', (req, res) => {
+  if (req.session.user) {
+    
+    return res.redirect('/');
+  }
+ res.redirect('/auth/discord');;
+});
+app.use(attachUser);
 // Route for logout
 app.get('/auth/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -391,6 +398,7 @@ app.get('/auth/logout', (req, res) => {
     res.redirect('/');
   });
 });
+
 // SPA fallback route
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "../../static/index.html"));
