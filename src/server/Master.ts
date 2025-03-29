@@ -12,7 +12,10 @@ import { fileURLToPath } from "url";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
 import { setupMetricsServer } from "./MasterMetrics";
 import { logger } from "./Logger";
-
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
+import { getDiscordAuthURL, getDiscordToken, getDiscordUser, validateState } from './DiscordAuth';
 const config = getServerConfigFromServer();
 const readyWorkers = new Set();
 
@@ -68,6 +71,18 @@ let publicLobbiesJsonStr = "";
 
 const publicLobbyIDs: Set<string> = new Set();
 
+app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: True, 
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    },
+  })
+);
 // Start the master process
 export async function startMaster() {
   if (!cluster.isPrimary) {
@@ -321,7 +336,61 @@ function allNonConsecutive(maps: GameMapType[]): boolean {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+//discord routes
+app.get('/auth/discord', (req, res) => {
+  // make a random state paramete to prevent CSRF attacks
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.state = state;
+  const authUrl = getDiscordAuthURL(state);
+  res.redirect(authUrl);
+});
+app.get('/auth/callback', async (req, res) => {
+  const { code, state } = req.query;
+  if (!state || !validateState(req.session.state, state as string)) {
+    return res.status(403).send('Invalid state parameter');
+  }
+  
+  try {
+    const tokenData = await getDiscordToken(code as string);
+    const userData = await getDiscordUser(tokenData.access_token);
+    // Store user data in session
+    req.session.user = {
+      id: userData.id,
+      username: userData.username,
+      discriminator: userData.discriminator,
+      avatar: userData.avatar,
+      email: userData.email,
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+    };
+    
+    res.redirect('/');
+  } catch (error) {
+    console.error('Error during Discord authentication:', error);
+    res.status(500).send('Authentication failed');
+  }
+});
 
+//endpoint for status
+app.get('/api/auth/status', (req, res) => {
+  if (req.session.user) {
+    const { accessToken, refreshToken, ...userInfo } = req.session.user;
+    res.json({ authenticated: true, user: userInfo });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+// Route for logout
+app.get('/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.status(500).send('Error logging out');
+    }
+    res.redirect('/');
+  });
+});
 // SPA fallback route
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "../../static/index.html"));
